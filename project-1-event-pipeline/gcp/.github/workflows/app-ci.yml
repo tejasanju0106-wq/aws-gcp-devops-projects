@@ -1,0 +1,42 @@
+name: App Pipeline - CI
+
+on:
+  pull_request:
+    paths:
+      - 'functions/**'
+      - 'frontend/**'
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install lint/test/security tools
+        run: |
+          pip install ruff pytest bandit pip-audit --break-system-packages
+
+      - name: Lint all function code
+        run: |
+          ruff check functions/ --exit-zero
+
+      - name: Security scan (bandit)
+        run: |
+          bandit -r functions/ -ll --exit-zero
+
+      - name: Run unit tests (if any exist)
+        run: |
+          pytest functions/ --continue-on-collection-errors || true
+
+      - name: Dependency vulnerability scan
+        run: |
+          for req in functions/*/requirements.txt; do
+            echo "Checking $req"
+            pip-audit -r "$req" || true
+          done

@@ -1,0 +1,84 @@
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f4f6f8;
+  margin: 0;
+  padding: 40px;
+}
+
+.container {
+  max-width: 480px;
+  margin: 0 auto;
+  background: white;
+  padding: 30px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+h1, h2 {
+  color: #2f5496;
+}
+
+label {
+  display: block;
+  margin-top: 15px;
+  font-weight: bold;
+}
+
+input {
+  width: 100%;
+  padding: 8px;
+  margin-top: 5px;
+  box-sizing: border-box;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+button {
+  margin-top: 20px;
+  padding: 10px 20px;
+  background-color: #2f5496;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #1e3a6e;
+}
+
+#signupResult, #statusResult {
+  margin-top: 15px;
+  padding: 10px;
+  border-radius: 4px;
+}
+
+.success {
+  background-color: #e6f4ea;
+  color: #1e7e34;
+}
+
+.error {
+  background-color: #fde8e8;
+  color: #c0392b;
+}
+
+.status-check {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.status-check input {
+  flex: 1;
+}
+
+.status-check button {
+  margin-top: 0;
+}
+
+hr {
+  margin: 30px 0;
+  border: none;
+  border-top: 1px solid #eee;
+}

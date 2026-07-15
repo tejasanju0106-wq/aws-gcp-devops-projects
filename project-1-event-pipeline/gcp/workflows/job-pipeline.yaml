@@ -1,0 +1,68 @@
+main:
+  params: [input]
+  steps:
+    - init:
+        assign:
+          - project_id: "devops-learning-p1-teja"
+          - validate_url: "https://us-central1-devops-learning-p1-teja.cloudfunctions.net/validate-input"
+
+    - try_block:
+        try:
+          steps:
+            - call_validate:
+                call: http.post
+                args:
+                  url: ${validate_url}
+                  body: ${input}
+                result: validate_result
+
+            - check_validation:
+                switch:
+                  - condition: ${validate_result.body.status == "error"}
+                    next: handle_failure
+
+            - write_received_status:
+                call: googleapis.firestore.v1.projects.databases.documents.createDocument
+                args:
+                  parent: ${"projects/" + project_id + "/databases/(default)/documents"}
+                  collectionId: "jobs"
+                  documentId: ${"signup-" + string(sys.now())}
+                  body:
+                    fields:
+                      status:
+                        stringValue: "RECEIVED"
+                      email:
+                        stringValue: ${validate_result.body.data.email}
+                      name:
+                        stringValue: ${validate_result.body.data.name}
+                result: firestore_result
+
+            - build_message:
+                assign:
+                  - message_body:
+                      jobId: ${input.jobId}
+                      email: ${validate_result.body.data.email}
+                      name: ${validate_result.body.data.name}
+
+            - publish_message:
+                call: googleapis.pubsub.v1.projects.topics.publish
+                args:
+                  topic: ${"projects/" + project_id + "/topics/job-events"}
+                  body:
+                    messages:
+                      - data: ${base64.encode(json.encode(message_body))}
+                result: publish_result
+
+            - return_success:
+                return:
+                  status: "success"
+                  message: "Signup processed and published"
+
+        except:
+          as: e
+          steps:
+            - handle_failure:
+                return:
+                  status: "error"
+                  message: "Signup validation failed"
+                  details: ${e}
