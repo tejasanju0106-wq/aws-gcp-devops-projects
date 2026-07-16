@@ -5,12 +5,13 @@ on:
     branches:
       - main
     paths:
-      - 'functions/**'
-      - 'frontend/**'
+      - 'project-1-event-pipeline/gcp/functions/**'
+      - 'project-1-event-pipeline/gcp/frontend/**'
 
 env:
   PROJECT_ID: devops-learning-p1-teja
   REGION: us-central1
+  BASE_PATH: project-1-event-pipeline/gcp
 
 jobs:
   deploy:
@@ -35,7 +36,7 @@ jobs:
       - name: Deploy validate-input
         run: |
           gcloud functions deploy validate-input --gen2 --runtime=python312 --region=$REGION \
-            --source=functions/validate-input --entry-point=validate_input \
+            --source=$BASE_PATH/functions/validate-input --entry-point=validate_input \
             --trigger-http --allow-unauthenticated \
             --service-account=sa-validate-input@$PROJECT_ID.iam.gserviceaccount.com \
             --project=$PROJECT_ID
@@ -43,7 +44,7 @@ jobs:
       - name: Deploy trigger-signup
         run: |
           gcloud functions deploy trigger-signup --gen2 --runtime=python312 --region=$REGION \
-            --source=functions/trigger-signup --entry-point=trigger_signup \
+            --source=$BASE_PATH/functions/trigger-signup --entry-point=trigger_signup \
             --trigger-http --allow-unauthenticated \
             --service-account=sa-trigger-signup@$PROJECT_ID.iam.gserviceaccount.com \
             --project=$PROJECT_ID
@@ -51,7 +52,7 @@ jobs:
       - name: Deploy get-job-status
         run: |
           gcloud functions deploy get-job-status --gen2 --runtime=python312 --region=$REGION \
-            --source=functions/get-job-status --entry-point=get_job_status \
+            --source=$BASE_PATH/functions/get-job-status --entry-point=get_job_status \
             --trigger-http --allow-unauthenticated \
             --service-account=sa-get-job-status@$PROJECT_ID.iam.gserviceaccount.com \
             --project=$PROJECT_ID
@@ -59,7 +60,7 @@ jobs:
       - name: Deploy retry-failed-jobs
         run: |
           gcloud functions deploy retry-failed-jobs --gen2 --runtime=python312 --region=$REGION \
-            --source=functions/retry-failed-jobs --entry-point=retry_failed_jobs \
+            --source=$BASE_PATH/functions/retry-failed-jobs --entry-point=retry_failed_jobs \
             --trigger-http --allow-unauthenticated \
             --service-account=sa-retry-failed-jobs@$PROJECT_ID.iam.gserviceaccount.com \
             --project=$PROJECT_ID
@@ -67,7 +68,7 @@ jobs:
       - name: Deploy consumer-notification
         run: |
           gcloud functions deploy consumer-notification --gen2 --runtime=python312 --region=$REGION \
-            --source=functions/consumer-notification --entry-point=consumer_notification \
+            --source=$BASE_PATH/functions/consumer-notification --entry-point=consumer_notification \
             --trigger-topic=job-events \
             --service-account=sa-consumer-notification@$PROJECT_ID.iam.gserviceaccount.com \
             --project=$PROJECT_ID
@@ -75,7 +76,7 @@ jobs:
       - name: Deploy consumer-audit
         run: |
           gcloud functions deploy consumer-audit --gen2 --runtime=python312 --region=$REGION \
-            --source=functions/consumer-audit --entry-point=consumer_audit \
+            --source=$BASE_PATH/functions/consumer-audit --entry-point=consumer_audit \
             --trigger-topic=job-events \
             --service-account=sa-consumer-audit@$PROJECT_ID.iam.gserviceaccount.com \
             --project=$PROJECT_ID
@@ -83,7 +84,7 @@ jobs:
       - name: Deploy finalizer
         run: |
           gcloud functions deploy finalizer --gen2 --runtime=python312 --region=$REGION \
-            --source=functions/finalizer --entry-point=finalizer \
+            --source=$BASE_PATH/functions/finalizer --entry-point=finalizer \
             --trigger-event-filters="type=google.cloud.firestore.document.v1.written" \
             --trigger-event-filters="database=(default)" \
             --trigger-event-filters-path-pattern="document=jobs/{jobId}/stages/{stageId}" \
@@ -94,7 +95,7 @@ jobs:
       - name: Deploy handle-notification-dlq
         run: |
           gcloud functions deploy handle-notification-dlq --gen2 --runtime=python312 --region=$REGION \
-            --source=functions/handle-dlq --entry-point=handle_notification_dlq \
+            --source=$BASE_PATH/functions/handle-dlq --entry-point=handle_notification_dlq \
             --trigger-topic=notification-dlq-topic \
             --service-account=sa-handle-dlq@$PROJECT_ID.iam.gserviceaccount.com \
             --project=$PROJECT_ID
@@ -102,14 +103,14 @@ jobs:
       - name: Deploy handle-audit-dlq
         run: |
           gcloud functions deploy handle-audit-dlq --gen2 --runtime=python312 --region=$REGION \
-            --source=functions/handle-dlq --entry-point=handle_audit_dlq \
+            --source=$BASE_PATH/functions/handle-dlq --entry-point=handle_audit_dlq \
             --trigger-topic=audit-dlq-topic \
             --service-account=sa-handle-dlq@$PROJECT_ID.iam.gserviceaccount.com \
             --project=$PROJECT_ID
 
       - name: Build and deploy frontend to Cloud Run
         run: |
-          gcloud builds submit frontend/ --tag=$REGION-docker.pkg.dev/$PROJECT_ID/frontend-images/signup-frontend:${{ github.sha }} --project=$PROJECT_ID
+          gcloud builds submit $BASE_PATH/frontend/ --tag=$REGION-docker.pkg.dev/$PROJECT_ID/frontend-images/signup-frontend:${{ github.sha }} --project=$PROJECT_ID
           gcloud run deploy signup-frontend --region=$REGION \
             --image=$REGION-docker.pkg.dev/$PROJECT_ID/frontend-images/signup-frontend:${{ github.sha }} \
             --service-account=sa-frontend@$PROJECT_ID.iam.gserviceaccount.com \
