@@ -3,4 +3,4 @@ resource "google_firestore_database" "default" {
   name        = "(default)"
   location_id = "us-central1"
   type        = "FIRESTORE_NATIVE"
-}
+}# test comment for infra pipeline
