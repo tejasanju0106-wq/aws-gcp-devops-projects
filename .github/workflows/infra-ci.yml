@@ -1,0 +1,43 @@
+name: Infra Pipeline - CI
+
+on:
+  pull_request:
+    paths:
+      - 'project-1-event-pipeline/gcp/terraform/**'
+
+jobs:
+  validate-and-plan:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform fmt check
+        run: terraform fmt -check -recursive
+        working-directory: project-1-event-pipeline/gcp/terraform/environments/dev
+        continue-on-error: true
+
+      - name: Authenticate to GCP via Workload Identity Federation
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: 'projects/752287056930/locations/global/workloadIdentityPools/github-actions-pool/providers/github-provider'
+          service_account: 'github-actions-deployer@devops-learning-p1-teja.iam.gserviceaccount.com'
+
+      - name: Terraform Init
+        run: terraform init
+        working-directory: project-1-event-pipeline/gcp/terraform/environments/dev
+
+      - name: Terraform Validate
+        run: terraform validate
+        working-directory: project-1-event-pipeline/gcp/terraform/environments/dev
+
+      - name: Terraform Plan
+        run: terraform plan
+        working-directory: project-1-event-pipeline/gcp/terraform/environments/dev
