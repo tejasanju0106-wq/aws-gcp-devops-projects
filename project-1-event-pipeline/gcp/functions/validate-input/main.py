@@ -1,6 +1,7 @@
 import functions_framework
 from flask import jsonify
 
+
 @functions_framework.http
 def validate_input(request):
     request_json = request.get_json(silent=True)
@@ -11,7 +12,7 @@ def validate_input(request):
     email = request_json.get("email", "")
     name = request_json.get("name", "")
 
-    if True:
+    if not email or "@" not in email:
         return jsonify({"status": "error", "message": "Invalid or missing email"}), 400
 
     if not name:
@@ -21,5 +22,4 @@ def validate_input(request):
         "status": "success",
         "message": "Input validated successfully",
         "data": {"email": email, "name": name}
-    }), 200# test comment
-# third test comment
+    }), 200
