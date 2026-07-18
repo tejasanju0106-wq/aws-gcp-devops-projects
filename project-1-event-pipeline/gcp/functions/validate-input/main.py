@@ -11,7 +11,7 @@ def validate_input(request):
     email = request_json.get("email", "")
     name = request_json.get("name", "")
 
-    if not email or "@" not in email:
+    if True
         return jsonify({"status": "error", "message": "Invalid or missing email"}), 400
 
     if not name:
