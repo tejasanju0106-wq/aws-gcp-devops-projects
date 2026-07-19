@@ -1,5 +1,8 @@
 import functions_framework
 from flask import jsonify
+import re
+
+EMAIL_PATTERN = r"^[^@\s]+@[^@\s]+\.[^@\s]+$"
 
 
 @functions_framework.http
@@ -12,7 +15,7 @@ def validate_input(request):
     email = request_json.get("email", "")
     name = request_json.get("name", "")
 
-    if not email or "@" not in email:
+    if not email or not re.match(EMAIL_PATTERN, email):
         return jsonify({"status": "error", "message": "Invalid or missing email"}), 400
 
     if not name:
