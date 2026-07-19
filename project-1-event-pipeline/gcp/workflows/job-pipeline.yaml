@@ -61,6 +61,20 @@ main:
         except:
           as: e
           steps:
+            - update_failed_status:
+                call: googleapis.firestore.v1.projects.databases.documents.patch
+                args:
+                  name: ${"projects/" + project_id + "/databases/(default)/documents/jobs/" + input.jobId}
+                  updateMask:
+                    fieldPaths: ["overallStatus", "errorMessage"]
+                  body:
+                    fields:
+                      overallStatus:
+                        stringValue: "VALIDATION_FAILED"
+                      errorMessage:
+                        stringValue: ${string(e)}
+                result: update_result
+
             - handle_failure:
                 return:
                   status: "error"
