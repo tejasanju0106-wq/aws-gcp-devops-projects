@@ -6,6 +6,7 @@ on:
       - main
     paths:
       - 'project-1-event-pipeline/gcp/terraform/**'
+      - 'project-1-event-pipeline/gcp/workflows/**'
 
 jobs:
   apply:

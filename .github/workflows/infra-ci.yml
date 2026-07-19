@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - 'project-1-event-pipeline/gcp/terraform/**'
+      - 'project-1-event-pipeline/gcp/workflows/**'
 
 jobs:
   validate-and-plan:
