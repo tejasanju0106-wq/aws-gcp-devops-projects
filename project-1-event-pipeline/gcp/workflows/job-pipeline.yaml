@@ -72,7 +72,7 @@ main:
                       overallStatus:
                         stringValue: "VALIDATION_FAILED"
                       errorMessage:
-                        stringValue: ${string(e)}
+                        stringValue: ${e.message}
                 result: update_result
 
             - handle_failure:
