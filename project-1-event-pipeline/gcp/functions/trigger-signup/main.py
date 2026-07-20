@@ -11,7 +11,7 @@ execution_client = executions_v1.ExecutionsClient()
 
 PROJECT_ID = "devops-learning-p1-teja"
 LOCATION = "us-central1"
-WORKFLOW_NAME = "job-pipeline"
+WORKFLOW_NAME = "user-signup-workflow"
 
 
 @functions_framework.http
