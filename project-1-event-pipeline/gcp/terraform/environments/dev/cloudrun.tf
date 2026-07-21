@@ -8,6 +8,10 @@ resource "google_cloud_run_v2_service" "signup_frontend" {
       image = "us-central1-docker.pkg.dev/devops-learning-p1-teja/frontend-images/signup-frontend:v1"
     }
   }
+
+  lifecycle {
+    ignore_changes = [template[0].containers[0].image]
+  }
 }
 
 resource "google_cloud_run_v2_service_iam_member" "signup_frontend_invoker" {
